@@ -4,6 +4,8 @@ on: push
 
 env:
   ARTIFACT_NAME: my-app
+  DOCKER_USERNAME: aviranmashiach
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
 jobs:
   build:
@@ -11,7 +13,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
 
     - name: Increase patch version
       run: |
@@ -28,8 +30,19 @@ jobs:
     - name: Package artifact
       run: mvn package
 
-    - name: Create artifact item
-      uses: actions/upload-artifact@v2
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
       with:
-        name: ${{ env.ARTIFACT_NAME }}-${{ env.new_version }}
-        path: target/${{ env.ARTIFACT_NAME }}-${{ env.new_version }}.jar
+        push: true
+        tags: ${{ env.ARTIFACT_NAME }}:${{ env.new_version }}
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ env.DOCKER_USERNAME }}
+        password: ${{ env.DOCKER_PASSWORD }}
+
+    - name: Push Docker image
+      uses: docker/push-action@v1
+      with:
+        tags: ${{ env.ARTIFACT_NAME }}:${{ env.new_version }}
