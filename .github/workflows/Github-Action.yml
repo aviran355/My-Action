@@ -33,4 +33,3 @@ jobs:
       with:
         name: ${{ env.ARTIFACT_NAME }}-${{ env.new_version }}
         path: target/${{ env.ARTIFACT_NAME }}-${{ env.new_version }}.jar
-v
