@@ -1,0 +1,36 @@
+name: Build and Deploy
+
+on: push
+
+env:
+  ARTIFACT_NAME: my-app
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Increase patch version
+      run: |
+        current_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        IFS='.' read -a version_array <<< "$current_version"
+        patch_version=$((${version_array[2]} + 1))
+        new_version="${version_array[0]}.${version_array[1]}.$patch_version"
+        echo "Updating version from $current_version to $new_version"
+        mvn versions:set -DnewVersion=$new_version
+
+    - name: Compile code
+      run: mvn clean compile
+
+    - name: Package artifact
+      run: mvn package
+
+    - name: Create artifact item
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ARTIFACT_NAME }}-${{ env.new_version }}
+        path: target/${{ env.ARTIFACT_NAME }}-${{ env.new_version }}.jar
+v
