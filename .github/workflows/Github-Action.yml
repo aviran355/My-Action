@@ -43,6 +43,6 @@ jobs:
         password: ${{ env.DOCKER_PASSWORD }}
 
     - name: Push Docker image
-      uses: docker/push-action@v1
+      run: docker push ${{secret.DOCKER_USERNAME}}/my-image
       with:
         tags: ${{ env.ARTIFACT_NAME }}:${{ env.new_version }}
