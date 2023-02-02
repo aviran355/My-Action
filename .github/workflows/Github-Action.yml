@@ -25,7 +25,9 @@ jobs:
         mvn versions:set -DnewVersion=$new_version
 
     - name: Compile code
-      run: mvn clean compile
+      run: mvn compile
+    - name: Test with maven
+      run: mvn test
 
     - name: Package artifact
       run: mvn package
